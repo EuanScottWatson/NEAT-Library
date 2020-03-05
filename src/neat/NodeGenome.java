@@ -1,3 +1,5 @@
+package neat;
+
 public class NodeGenome {
 
   private NodeType type;
