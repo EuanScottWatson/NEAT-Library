@@ -17,6 +17,10 @@ public class ConnectionGenome {
     this.innovationNo = innovationNo;
   }
 
+  public ConnectionGenome copy() {
+    return new ConnectionGenome(inputNode, outputNode, weight, active, innovationNo);
+  }
+
   public void disable() {
     active = false;
   }
@@ -33,6 +37,10 @@ public class ConnectionGenome {
     return weight;
   }
 
+  public void setWeight(float weight) {
+    this.weight = weight;
+  }
+
   public boolean isActive() {
     return active;
   }
@@ -40,4 +48,5 @@ public class ConnectionGenome {
   public int getInnovationNo() {
     return innovationNo;
   }
+
 }

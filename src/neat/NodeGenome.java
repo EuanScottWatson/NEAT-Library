@@ -10,6 +10,10 @@ public class NodeGenome {
     this.id = id;
   }
 
+  public NodeGenome copy() {
+    return new NodeGenome(type, id);
+  }
+
   public NodeType getType() {
     return type;
   }
