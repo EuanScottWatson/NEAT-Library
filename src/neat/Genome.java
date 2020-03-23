@@ -158,11 +158,11 @@ public class Genome {
 
     for (int i = 0; i <= highestInnovation; i++) {
       excessGenes = getDisjointExcessNodes(genome1, genome2, excessGenes, i, gene1Innovation < i,
-          gene2Innovation < i, gene1Innovation, gene2Innovation);
+          gene2Innovation < i);
 
       disjointGenes = getDisjointExcessNodes(genome1, genome2, disjointGenes, i,
-          gene1Innovation > i, gene2Innovation > i,
-          gene1Innovation, gene2Innovation);
+          gene1Innovation > i, gene2Innovation > i
+      );
     }
 
     // Count the connections
@@ -178,11 +178,11 @@ public class Genome {
     for (int i = 0; i <= highestInnovation; i++) {
       excessGenes = getExcessDisjointConnections(genome1, genome2, excessGenes, i,
           gene1Innovation < i,
-          gene2Innovation < i,
-          gene1Innovation, gene2Innovation);
+          gene2Innovation < i
+      );
 
       disjointGenes = getExcessDisjointConnections(genome1, genome2, disjointGenes, i,
-          gene1Innovation > i, gene2Innovation > i, gene1Innovation, gene2Innovation);
+          gene1Innovation > i, gene2Innovation > i);
     }
 
     // Return as array
@@ -190,7 +190,7 @@ public class Genome {
   }
 
   private static int getDisjointExcessNodes(Genome genome1, Genome genome2, int count,
-      int i, boolean b, boolean b2, int gene1Innovation, int gene2Innovation) {
+      int i, boolean b, boolean b2) {
     if (genome1.getNodes().get(i) == null && b
         && genome2.getNodes().get(i) != null) {
       count++;
@@ -202,7 +202,7 @@ public class Genome {
   }
 
   private static int getExcessDisjointConnections(Genome genome1, Genome genome2, int count, int i,
-      boolean b, boolean b2, int gene1Innovation, int gene2Innovation) {
+      boolean b, boolean b2) {
     if (genome1.getConnections().get(i) == null && b
         && genome2.getConnections().get(i) != null) {
       count++;
