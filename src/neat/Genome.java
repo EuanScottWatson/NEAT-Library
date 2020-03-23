@@ -1,6 +1,9 @@
 package neat;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -14,12 +17,14 @@ public class Genome {
   // Global innovation to keep track of the connection numbers
   private InnovationNumber connectionInnovation = new InnovationNumber();
 
+  private static List<Integer> throwAwayList = new ArrayList<>();
+
   // Probability of mutating the weight of a connection
-  public final float mutationProb = 0.9f;
+  public final float MUTATION_PROBABILITY = 0.9f;
 
   public Genome() {
-    nodes = new HashMap<Integer, NodeGenome>();
-    connections = new HashMap<Integer, ConnectionGenome>();
+    nodes = new HashMap<>();
+    connections = new HashMap<>();
   }
 
   public void addNode(NodeGenome node) {
@@ -40,10 +45,10 @@ public class Genome {
 
   public void mutation(Random r) {
     for (ConnectionGenome c : connections.values()) {
-      if (r.nextFloat() < 0.9) {
-        c.setWeight(c.getWeight() * (r.nextFloat()*2f-1f));   // Slight change
+      if (r.nextFloat() < MUTATION_PROBABILITY) {
+        c.setWeight(c.getWeight() * (r.nextFloat() * 2f - 1f));   // Slight change
       } else {
-        c.setWeight(r.nextFloat()*2f-1f);                     // New value
+        c.setWeight(r.nextFloat() * 2f - 1f);                     // New value
       }
     }
   }
@@ -117,8 +122,7 @@ public class Genome {
       // Check for matching connection gene
       if (parent2.getConnections().containsKey(parent1Connection.getInnovationNo())) {
         // Matching gene
-        // Random double < 0.5 = Pick Parent1
-
+        // Random boolean = True -> Pick Parent1
         ConnectionGenome childConnection = r.nextBoolean() ? parent1Connection.copy()
             : parent2.getConnections().get(parent1Connection.getInnovationNo());
         child.addConnections(childConnection);
@@ -128,6 +132,111 @@ public class Genome {
       }
     }
     return child;
+  }
+
+  public static float compatibilityDistance(Genome genome1, Genome genome2, float c1, float c2,
+      float c3) {
+    int[] excessDisjoint = countExcessDisjoint(genome1, genome2);
+    float avWeightDifference = 0;
+
+    return c1 * excessDisjoint[0] + c2 * excessDisjoint[1] + c3 * avWeightDifference;
+  }
+
+  public static int[] countExcessDisjoint(Genome genome1, Genome genome2) {
+    int excessGenes = 0;
+    int disjointGenes = 0;
+
+    // Count the nodes
+    List<Integer> nodeOneKeys = asSortedList(genome1.getNodes().keySet(), throwAwayList);
+    List<Integer> nodeTwoKeys = asSortedList(genome2.getNodes().keySet(), throwAwayList);
+
+    int gene1Innovation = nodeOneKeys.get(nodeOneKeys.size() - 1);
+    int gene2Innovation = nodeTwoKeys.get(nodeTwoKeys.size() - 1);
+    int highestInnovation = Math.max(gene1Innovation, gene2Innovation);
+
+    for (int i = 0; i <= highestInnovation; i++) {
+      excessGenes = getExcessDisjointNodes(genome1, genome2, excessGenes, i, gene1Innovation < i,
+          gene2Innovation < i, gene1Innovation, gene2Innovation);
+      disjointGenes = getExcessDisjointNodes(genome1, genome2, disjointGenes, i,
+          gene1Innovation > i, gene2Innovation > i, gene1Innovation, gene2Innovation);
+    }
+
+    // Count the connections
+    List<Integer> connectionOneKeys = asSortedList(genome1.getConnections().keySet(),
+        throwAwayList);
+    List<Integer> connectionTwoKeys = asSortedList(genome2.getConnections().keySet(),
+        throwAwayList);
+
+    gene1Innovation = connectionOneKeys.get(nodeOneKeys.size() - 1);
+    gene2Innovation = connectionTwoKeys.get(nodeTwoKeys.size() - 1);
+    highestInnovation = Math.max(gene1Innovation, gene2Innovation);
+
+    for (int i = 0; i <= highestInnovation; i++) {
+      excessGenes = getExcessDisjointConnections(genome1, genome2, excessGenes, i,
+          gene1Innovation < i, gene2Innovation < i, gene1Innovation, gene2Innovation);
+      disjointGenes = getExcessDisjointConnections(genome1, genome2, disjointGenes, i,
+          gene1Innovation > i, gene2Innovation > i, gene1Innovation, gene2Innovation);
+    }
+
+    // Return as array
+    return new int[]{excessGenes, disjointGenes};
+  }
+
+  private static int getExcessDisjointConnections(Genome genome1, Genome genome2, int count,
+      int i, boolean b, boolean b2, int gene1Innovation, int gene2Innovation) {
+    // Extracted method to reduce redundancy
+    if (genome1.getConnections().get(i) == null && b && genome2.getConnections().get(i) != null) {
+      count++;
+    } else if (genome2.getConnections().get(i) == null && b2
+        && genome1.getConnections().get(i) != null) {
+      count++;
+    }
+    return count;
+  }
+
+  private static int getExcessDisjointNodes(Genome genome1, Genome genome2, int count, int i,
+      boolean b, boolean b2, int gene1Innovation, int gene2Innovation) {
+    if (genome1.getNodes().get(i) == null && b && genome2.getNodes().get(i) != null) {
+      count++;
+    } else if (genome2.getNodes().get(i) == null && b2 && genome1.getNodes().get(i) != null) {
+      count++;
+    }
+    return count;
+  }
+
+  public static float getAverageWeightDifference(Genome genome1, Genome genome2) {
+    int matchingGenes = 0;
+    int weightDifference = 0;
+
+    List<Integer> connectionOneKeys = asSortedList(genome1.getConnections().keySet(),
+        throwAwayList);
+    List<Integer> connectionTwoKeys = asSortedList(genome2.getConnections().keySet(),
+        throwAwayList);
+
+    int gene1Innovation = connectionOneKeys.get(connectionOneKeys.size() - 1);
+    int gene2Innovation = connectionTwoKeys.get(connectionTwoKeys.size() - 1);
+    int highestInnovation = Math.max(gene1Innovation, gene2Innovation);
+
+    for (int i = 0; i <= highestInnovation; i++) {
+      if (genome1.getConnections().get(i) != null && genome2.getConnections().get(i) != null) {
+        matchingGenes++;
+        weightDifference += Math.abs(
+            genome1.getConnections().get(i).getWeight() - genome2.getConnections().get(i)
+                .getWeight());
+      }
+    }
+
+    return weightDifference / (float) matchingGenes;
+  }
+
+  private static List<Integer> asSortedList(Collection<Integer> c, List<Integer> throwAway) {
+    // Taken from StackOverflow:
+    // https://stackoverflow.com/questions/740299/how-do-i-sort-a-set-to-a-list-in-java
+    // Helper to sort in ascending
+    throwAway.clear();
+    throwAway.addAll(c);
+    java.util.Collections.sort(throwAway);
+    return throwAway;
   }
 
   public static void print(Genome g) {
