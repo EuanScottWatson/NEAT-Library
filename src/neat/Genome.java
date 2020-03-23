@@ -1,6 +1,7 @@
 package neat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -17,7 +18,8 @@ public class Genome {
   // Global innovation to keep track of the connection numbers
   private InnovationNumber connectionInnovation = new InnovationNumber();
 
-  private static List<Integer> throwAwayList = new ArrayList<>();
+  private static List<Integer> throwAwayList1 = new ArrayList<>();
+  private static List<Integer> throwAwayList2 = new ArrayList<>();
 
   // Probability of mutating the weight of a connection
   public final float MUTATION_PROBABILITY = 0.9f;
@@ -137,7 +139,7 @@ public class Genome {
   public static float compatibilityDistance(Genome genome1, Genome genome2, float c1, float c2,
       float c3) {
     int[] excessDisjoint = countExcessDisjoint(genome1, genome2);
-    float avWeightDifference = 0;
+    float avWeightDifference = getAverageWeightDifference(genome1, genome2);
 
     return c1 * excessDisjoint[0] + c2 * excessDisjoint[1] + c3 * avWeightDifference;
   }
@@ -147,25 +149,27 @@ public class Genome {
     int disjointGenes = 0;
 
     // Count the nodes
-    List<Integer> nodeOneKeys = asSortedList(genome1.getNodes().keySet(), throwAwayList);
-    List<Integer> nodeTwoKeys = asSortedList(genome2.getNodes().keySet(), throwAwayList);
+    List<Integer> nodeOneKeys = asSortedList(genome1.getNodes().keySet(), throwAwayList1);
+    List<Integer> nodeTwoKeys = asSortedList(genome2.getNodes().keySet(), throwAwayList2);
 
     int gene1Innovation = nodeOneKeys.get(nodeOneKeys.size() - 1);
     int gene2Innovation = nodeTwoKeys.get(nodeTwoKeys.size() - 1);
     int highestInnovation = Math.max(gene1Innovation, gene2Innovation);
 
     for (int i = 0; i <= highestInnovation; i++) {
-      excessGenes = getExcessDisjointNodes(genome1, genome2, excessGenes, i, gene1Innovation < i,
+      excessGenes = getDisjointExcessNodes(genome1, genome2, excessGenes, i, gene1Innovation < i,
           gene2Innovation < i, gene1Innovation, gene2Innovation);
-      disjointGenes = getExcessDisjointNodes(genome1, genome2, disjointGenes, i,
-          gene1Innovation > i, gene2Innovation > i, gene1Innovation, gene2Innovation);
+
+      disjointGenes = getDisjointExcessNodes(genome1, genome2, disjointGenes, i,
+          gene1Innovation > i, gene2Innovation > i,
+          gene1Innovation, gene2Innovation);
     }
 
     // Count the connections
     List<Integer> connectionOneKeys = asSortedList(genome1.getConnections().keySet(),
-        throwAwayList);
+        throwAwayList1);
     List<Integer> connectionTwoKeys = asSortedList(genome2.getConnections().keySet(),
-        throwAwayList);
+        throwAwayList2);
 
     gene1Innovation = connectionOneKeys.get(nodeOneKeys.size() - 1);
     gene2Innovation = connectionTwoKeys.get(nodeTwoKeys.size() - 1);
@@ -173,7 +177,10 @@ public class Genome {
 
     for (int i = 0; i <= highestInnovation; i++) {
       excessGenes = getExcessDisjointConnections(genome1, genome2, excessGenes, i,
-          gene1Innovation < i, gene2Innovation < i, gene1Innovation, gene2Innovation);
+          gene1Innovation < i,
+          gene2Innovation < i,
+          gene1Innovation, gene2Innovation);
+
       disjointGenes = getExcessDisjointConnections(genome1, genome2, disjointGenes, i,
           gene1Innovation > i, gene2Innovation > i, gene1Innovation, gene2Innovation);
     }
@@ -182,23 +189,25 @@ public class Genome {
     return new int[]{excessGenes, disjointGenes};
   }
 
-  private static int getExcessDisjointConnections(Genome genome1, Genome genome2, int count,
+  private static int getDisjointExcessNodes(Genome genome1, Genome genome2, int count,
       int i, boolean b, boolean b2, int gene1Innovation, int gene2Innovation) {
-    // Extracted method to reduce redundancy
-    if (genome1.getConnections().get(i) == null && b && genome2.getConnections().get(i) != null) {
+    if (genome1.getNodes().get(i) == null && b
+        && genome2.getNodes().get(i) != null) {
       count++;
-    } else if (genome2.getConnections().get(i) == null && b2
-        && genome1.getConnections().get(i) != null) {
+    } else if (genome2.getNodes().get(i) == null && b2
+        && genome1.getNodes().get(i) != null) {
       count++;
     }
     return count;
   }
 
-  private static int getExcessDisjointNodes(Genome genome1, Genome genome2, int count, int i,
+  private static int getExcessDisjointConnections(Genome genome1, Genome genome2, int count, int i,
       boolean b, boolean b2, int gene1Innovation, int gene2Innovation) {
-    if (genome1.getNodes().get(i) == null && b && genome2.getNodes().get(i) != null) {
+    if (genome1.getConnections().get(i) == null && b
+        && genome2.getConnections().get(i) != null) {
       count++;
-    } else if (genome2.getNodes().get(i) == null && b2 && genome1.getNodes().get(i) != null) {
+    } else if (genome2.getConnections().get(i) == null && b2
+        && genome1.getConnections().get(i) != null) {
       count++;
     }
     return count;
@@ -209,9 +218,9 @@ public class Genome {
     int weightDifference = 0;
 
     List<Integer> connectionOneKeys = asSortedList(genome1.getConnections().keySet(),
-        throwAwayList);
+        throwAwayList1);
     List<Integer> connectionTwoKeys = asSortedList(genome2.getConnections().keySet(),
-        throwAwayList);
+        throwAwayList2);
 
     int gene1Innovation = connectionOneKeys.get(connectionOneKeys.size() - 1);
     int gene2Innovation = connectionTwoKeys.get(connectionTwoKeys.size() - 1);
@@ -249,5 +258,44 @@ public class Genome {
       System.out.println("Connection: " + c.getInputNode() + " -> " + c.getOutputNode());
       System.out.println("Enabled: " + c.isActive());
     }
+  }
+
+
+  public static void main(String[] args) {
+    Genome g1 = new Genome();
+
+    g1.addNode(new NodeGenome(NodeType.INPUT, 1));
+    g1.addNode(new NodeGenome(NodeType.INPUT, 2));
+    g1.addNode(new NodeGenome(NodeType.INPUT, 3));
+    g1.addNode(new NodeGenome(NodeType.OUTPUT, 4));
+    g1.addNode(new NodeGenome(NodeType.HIDDEN, 5));
+
+    g1.addConnections(new ConnectionGenome(1, 4, 1.0f, true, 1));
+    g1.addConnections(new ConnectionGenome(2, 4, 1.0f, false, 2));
+    g1.addConnections(new ConnectionGenome(3, 4, 1.0f, true, 3));
+    g1.addConnections(new ConnectionGenome(2, 5, 1.0f, true, 4));
+    g1.addConnections(new ConnectionGenome(5, 4, 1.0f, true, 5));
+    g1.addConnections(new ConnectionGenome(1, 5, 1.0f, true, 8));
+
+    Genome g2 = new Genome();
+
+    g1.addNode(new NodeGenome(NodeType.INPUT, 1));
+    g1.addNode(new NodeGenome(NodeType.INPUT, 2));
+    g1.addNode(new NodeGenome(NodeType.INPUT, 3));
+    g1.addNode(new NodeGenome(NodeType.OUTPUT, 4));
+    g1.addNode(new NodeGenome(NodeType.HIDDEN, 5));
+    g2.addNode(new NodeGenome(NodeType.HIDDEN, 6));
+
+    g2.addConnections(new ConnectionGenome(1, 4, 1.0f, true, 1));
+    g2.addConnections(new ConnectionGenome(2, 4, 1.0f, false, 2));
+    g2.addConnections(new ConnectionGenome(3, 4, 1.0f, true, 3));
+    g2.addConnections(new ConnectionGenome(2, 5, 1.0f, true, 4));
+    g2.addConnections(new ConnectionGenome(5, 4, 1.0f, false, 5));
+    g2.addConnections(new ConnectionGenome(5, 6, 1.0f, true, 6));
+    g2.addConnections(new ConnectionGenome(6, 4, 1.0f, true, 7));
+    g2.addConnections(new ConnectionGenome(3, 5, 1.0f, true, 9));
+    g2.addConnections(new ConnectionGenome(1, 6, 1.0f, true, 10));
+
+    System.out.println(Arrays.toString(countExcessDisjoint(g1, g2)));
   }
 }
