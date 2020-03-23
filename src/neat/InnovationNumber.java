@@ -2,11 +2,7 @@ package neat;
 
 public class InnovationNumber {
 
-  private int innovationNo;
-
-  public InnovationNumber(int innovationNo) {
-    this.innovationNo = innovationNo;
-  }
+  private int innovationNo = 0;
 
   public int getInnovationNo() {
     return innovationNo++;
