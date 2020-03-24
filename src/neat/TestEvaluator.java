@@ -38,11 +38,9 @@ public class TestEvaluator {
     for (int i = 0; i < 100; i++) {
       evaluator.evaluate();
       System.out.print("Generation: " + (i + 1));
-      System.out.print("\t\tHighest Fitness: " + evaluator.getHighestScore());
       System.out.print("\t\tNumber of Species: " + evaluator.getSpeciesSize());
-      System.out.print("\t\tNumber of in best Species: " + evaluator.getSpeciesMap().get(evaluator.getBestGenome()).population.size());
-      System.out.print("\t\tFitness of best: " + evaluator.getFitnessMap().get(evaluator.getBestGenome()));
-      System.out.print("\t\tFitness of best: " + evaluator.getFitnessMap().get(evaluator.getBestGenome()));
+      System.out.print("\t\tHighest Fitness: " + evaluator.getHighestScore());
+      System.out.print("\t\tNumber in best Species: " + evaluator.getSpeciesMap().get(evaluator.getBestGenome()).population.size());
 
       float totalWeight = 0f;
       for (ConnectionGenome c : evaluator.getBestGenome().getConnections().values()) {
@@ -52,7 +50,7 @@ public class TestEvaluator {
       }
       System.out.println("\t\tSum of weights: " + totalWeight);
     }
-    //Genome.print(evaluator.getBestGenome());
+    Genome.print(evaluator.getBestGenome());
 
   }
 

@@ -3,12 +3,10 @@ package neat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 public class Genome {
 
@@ -19,9 +17,6 @@ public class Genome {
 
   private static List<Integer> throwAwayList1 = new ArrayList<>();
   private static List<Integer> throwAwayList2 = new ArrayList<>();
-
-  // Probability of mutating the weight of a connection
-  public final float MUTATION_PROBABILITY = 0.9f;
 
   public Genome() {
     nodes = new HashMap<>();
@@ -49,7 +44,7 @@ public class Genome {
     connections.put(connection.getInnovationNo(), connection);
   }
 
-  public Map<Integer, NodeGenome> getNodes() {
+  private Map<Integer, NodeGenome> getNodes() {
     return nodes;
   }
 
@@ -59,6 +54,8 @@ public class Genome {
 
   public void mutation(Random r) {
     for (ConnectionGenome c : connections.values()) {
+      // Probability of mutating the weight of a connection
+      float MUTATION_PROBABILITY = 0.9f;
       if (r.nextFloat() < MUTATION_PROBABILITY) {
         c.setWeight(c.getWeight() * (r.nextFloat() * 4f - 2f));   // Slight change
       } else {
@@ -159,7 +156,7 @@ public class Genome {
     return c1 * excessDisjoint[0] + c2 * excessDisjoint[1] + c3 * avWeightDifference;
   }
 
-  public static int[] countExcessDisjoint(Genome genome1, Genome genome2) {
+  private static int[] countExcessDisjoint(Genome genome1, Genome genome2) {
     int excessGenes = 0;
     int disjointGenes = 0;
 
@@ -228,7 +225,7 @@ public class Genome {
     return count;
   }
 
-  public static float getAverageWeightDifference(Genome genome1, Genome genome2) {
+  private static float getAverageWeightDifference(Genome genome1, Genome genome2) {
     int matchingGenes = 0;
     int weightDifference = 0;
 
@@ -268,8 +265,7 @@ public class Genome {
       System.out.println(n.getId());
     }
     for (ConnectionGenome c : g.getConnections().values()) {
-      System.out.println("");
-      System.out.println("Innovation: " + c.getInnovationNo());
+      System.out.println("\nInnovation: " + c.getInnovationNo());
       System.out.println("Connection: " + c.getInputNode() + " -> " + c.getOutputNode());
       System.out.println("Enabled: " + c.isActive());
       System.out.println("Weight: " + c.getWeight());
