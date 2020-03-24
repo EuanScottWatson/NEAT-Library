@@ -29,6 +29,19 @@ public class Genome {
     connections = new HashMap<>();
   }
 
+  public Genome(Genome starter) {
+    nodes = new HashMap<>();
+    connections = new HashMap<>();
+
+    for (int i : starter.getNodes().keySet()) {
+      nodes.put(i, starter.getNodes().get(i).copy());
+    }
+
+    for (int i : starter.getConnections().keySet()) {
+      connections.put(i, starter.getConnections().get(i).copy());
+    }
+  }
+
   public void addNode(NodeGenome node) {
     nodes.put(node.getId(), node);
   }
@@ -89,7 +102,7 @@ public class Genome {
 
   }
 
-  public void addNodeMutation(Random r) {
+  public void newNodeMutation(Random r) {
     ConnectionGenome c = connections.get(r.nextInt(connections.size()));
 
     c.disable();
@@ -286,7 +299,7 @@ public class Genome {
     g1.addNode(new NodeGenome(NodeType.HIDDEN, 5));
     g2.addNode(new NodeGenome(NodeType.HIDDEN, 6));
 
-    g2.addConnections(new ConnectionGenome(1, 4, 1.0f, true, 1));
+    g2.addConnections(new ConnectionGenome(1, 4, 2.0f, true, 1));
     g2.addConnections(new ConnectionGenome(2, 4, 1.0f, false, 2));
     g2.addConnections(new ConnectionGenome(3, 4, 1.0f, true, 3));
     g2.addConnections(new ConnectionGenome(2, 5, 1.0f, true, 4));
@@ -297,5 +310,6 @@ public class Genome {
     g2.addConnections(new ConnectionGenome(1, 6, 1.0f, true, 10));
 
     System.out.println(Arrays.toString(countExcessDisjoint(g1, g2)));
+    System.out.println(getAverageWeightDifference(g1, g2));
   }
 }
