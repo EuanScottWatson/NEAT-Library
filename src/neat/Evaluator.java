@@ -2,7 +2,6 @@ package neat;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -100,7 +99,28 @@ public class Evaluator {
     }
 
     // Breed for the remaining places
+    while (nextGeneration.size() < populationSize) {
+      Species s1 = getRandomSpecies(random);
+      Species s2 = getRandomSpecies(random);
+
+      Genome parent1 = getRandomGenome(s1, random);
+      Genome parent2 = getRandomGenome(s2, random);
+    }
+
     // Reset for next generation
+    population = nextGeneration;
+    nextGeneration = new ArrayList<>();
+    fitnessPairs = new ArrayList<>();
+  }
+
+  private Genome getRandomGenome(Species s1, Random random) {
+  }
+
+  private Species getRandomSpecies(Random random) {
+    float totalWeight = 0f;
+    for (Species s : species) {
+      totalWeight += s.totalFitness;
+    }
   }
 
   public float evaluateGenome(Genome g) {
