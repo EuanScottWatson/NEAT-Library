@@ -9,6 +9,7 @@ public class CONFIGURATION {
   public float MUTATION_THRESHOLD = 0.9f;
   public float ADD_CONNECTION_THRESHOLD = 0.05f;
   public float ADD_NODE_THRESHOLD = 0.03f;
+  public float MUTATION_WITHOUT_CROSSOVER = 0.25f;
 
   private int populationSize;
 

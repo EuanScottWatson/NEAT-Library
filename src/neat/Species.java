@@ -14,6 +14,7 @@ public class Species {
   public Species(Genome leader) {
     this.leader = leader;
     population = new ArrayList<>();
+    fitnessPairs = new ArrayList<>();
     population.add(leader);
   }
 
