@@ -2,7 +2,7 @@ package neat;
 
 import java.util.Arrays;
 
-public class Neuron {
+class Neuron {
 
   private float finalOutput;
 
@@ -10,29 +10,26 @@ public class Neuron {
   private Float[] outputWeights;
   private int[] outputIDs;
 
-  public Neuron() {
+  Neuron() {
     inputValues = new Float[0];
     outputWeights = new Float[0];
     outputIDs = new int[0];
   }
 
-  public float getFinalOutput() {
+  float getFinalOutput() {
     return finalOutput;
   }
 
-  public Float[] getInputValues() {
-    return inputValues;
-  }
 
-  public int[] getOutputIDs() {
+  int[] getOutputIDs() {
     return outputIDs;
   }
 
-  public Float[] getOutputWeights() {
+  Float[] getOutputWeights() {
     return outputWeights;
   }
 
-  public void addOutput(int id, float weight) {
+  void addOutput(int id, float weight) {
     Float[] newOutputWeights = new Float[outputWeights.length + 1];
     System.arraycopy(outputWeights, 0, newOutputWeights, 0, outputWeights.length);
     newOutputWeights[outputWeights.length] = weight;
@@ -44,7 +41,7 @@ public class Neuron {
     outputIDs = newOutputIDs;
   }
 
-  public boolean ready() {
+  boolean ready() {
     for (Float f : inputValues) {
       if (f == null) {
         return false;
@@ -53,7 +50,7 @@ public class Neuron {
     return true;
   }
 
-  public void addInput() {
+  void addInput() {
     Float[] newInputs = new Float[inputValues.length + 1];
     for (int i = 0; i < inputValues.length + 1; i++) {
       newInputs[i] = null;
@@ -61,19 +58,19 @@ public class Neuron {
     inputValues = newInputs;
   }
 
-  public float calculateOutput() {
+  void calculateOutput() {
     float outputSum = 0f;
     for (Float f : inputValues) {
       outputSum += f;
     }
-    return sigmoid(outputSum);
+    finalOutput = sigmoid(outputSum);
   }
 
   private float sigmoid(Float x) {
     return (float) (1f / (1 + Math.exp(-1 * x)));
   }
 
-  public void addInputValue(float input) {
+  void addInputValue(float input) {
     for (int i = 0; i < inputValues.length; i++) {
       if (inputValues[i] == null) {
         inputValues[i] = input;
@@ -82,7 +79,7 @@ public class Neuron {
     }
   }
 
-  public void reset() {
+  void reset() {
     Arrays.fill(inputValues, null);
     finalOutput = 0f;
   }

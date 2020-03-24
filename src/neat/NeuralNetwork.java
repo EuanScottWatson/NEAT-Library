@@ -1,6 +1,7 @@
 package neat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -63,8 +64,8 @@ public class NeuralNetwork {
       input.calculateOutput();
 
       for (int j = 0; j < input.getOutputIDs().length; j++) {
-        Neuron outputNeuron = neurons.get(input.getOutputIDs()[i]);
-        outputNeuron.addInputValue(input.getFinalOutput() * input.getOutputWeights()[i]);
+        Neuron outputNeuron = neurons.get(input.getOutputIDs()[j]);
+        outputNeuron.addInputValue(input.getFinalOutput() * input.getOutputWeights()[j]);
       }
 
       unprocessed.remove(input);
@@ -93,7 +94,7 @@ public class NeuralNetwork {
     }
 
     float[] outputValues = new float[outputs.size()];
-    for (int i=0;i<outputs.size(); i++) {
+    for (int i = 0; i < outputs.size(); i++) {
       outputValues[i] = neurons.get(outputs.get(i)).getFinalOutput();
     }
 
