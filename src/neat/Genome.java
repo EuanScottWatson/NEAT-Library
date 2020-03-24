@@ -44,7 +44,7 @@ public class Genome {
     connections.put(connection.getInnovationNo(), connection);
   }
 
-  private Map<Integer, NodeGenome> getNodes() {
+  public Map<Integer, NodeGenome> getNodes() {
     return nodes;
   }
 

@@ -20,6 +20,18 @@ public class Neuron {
     return finalOutput;
   }
 
+  public Float[] getInputValues() {
+    return inputValues;
+  }
+
+  public int[] getOutputIDs() {
+    return outputIDs;
+  }
+
+  public Float[] getOutputWeights() {
+    return outputWeights;
+  }
+
   public void addOutput(int id, float weight) {
     Float[] newOutputWeights = new Float[outputWeights.length + 1];
     System.arraycopy(outputWeights, 0, newOutputWeights, 0, outputWeights.length);
