@@ -14,6 +14,9 @@ public abstract class Evaluator {
   private int populationSize;
   private CONFIGURATION configuration;
 
+  private InnovationNumber nodeInnovation;
+  private InnovationNumber connectionInnovation;
+
   private Random random = new Random();
 
   private List<Genome> population;
@@ -27,7 +30,9 @@ public abstract class Evaluator {
   private Genome bestGenome;
 
 
-  public Evaluator(int populationSize, Genome starter) {
+  public Evaluator(int populationSize, Genome starter, InnovationNumber nodeInnovation, InnovationNumber connectionInnovation) {
+    this.nodeInnovation = nodeInnovation;
+    this.connectionInnovation = connectionInnovation;
     this.populationSize = populationSize;
     configuration = new CONFIGURATION(populationSize);
 
@@ -44,15 +49,38 @@ public abstract class Evaluator {
 
   }
 
+  public Map<Genome, Species> getSpeciesMap() {
+    return speciesMap;
+  }
+
+  public Map<Genome, Float> getFitnessMap() {
+    return fitnessMap;
+  }
+
+  public float getHighestScore() {
+    return highestScore;
+  }
+
+  public Genome getBestGenome() {
+    return bestGenome;
+  }
+
+  public int getSpeciesSize() {
+    return species.size();
+  }
+
   public void evaluate() {
 
+    //System.out.println("Evaluating...");
     for (Species s : species) {
       s.resetSpecies(random);
     }
     fitnessMap.clear();
     speciesMap.clear();
-    nextGeneration.clear();
+    nextGeneration = new ArrayList<>();
 
+
+    //System.out.println("\t\tSpeciating...");
     // Place genomes into respective species
     for (Genome g : population) {
       boolean foundSpecies = false;
@@ -76,6 +104,7 @@ public abstract class Evaluator {
 
     species.removeIf(s -> s.population.isEmpty());
 
+    //System.out.println("\t\tEvaluating Genomes...");
     // Evaluate the genomes in each species
     for (Genome g : population) {
       Species s = speciesMap.get(g);
@@ -89,13 +118,17 @@ public abstract class Evaluator {
       fitnessMap.put(g, fitness);
 
       if (fitness > highestScore) {
+        System.out.println("Previous: " + highestScore);
+        System.out.println("New: " + fitness);
         highestScore = fitness;
         bestGenome = g;
       }
 
     }
 
+
     // Carry over the best two genomes in each species
+    //System.out.println("\t\tCarry over...");
     nextGeneration.add(bestGenome);
 
     for (Species s : species) {
@@ -108,6 +141,7 @@ public abstract class Evaluator {
     }
 
     // Breed for the remaining places
+    //System.out.println("\t\tBreeding...");
     while (nextGeneration.size() < populationSize) {
       Species s1 = getRandomSpecies();
       Species s2 = getRandomSpecies();
@@ -137,10 +171,10 @@ public abstract class Evaluator {
           child.mutation(random);
         }
         if (random.nextFloat() < configuration.ADD_CONNECTION_THRESHOLD) {
-          child.newConnectionMutation(random);
+          child.newConnectionMutation(random, connectionInnovation);
         }
         if (random.nextFloat() < configuration.ADD_NODE_THRESHOLD) {
-          child.newNodeMutation(random);
+          child.newNodeMutation(random, connectionInnovation, nodeInnovation);
         }
 
         nextGeneration.add(child);
@@ -183,7 +217,7 @@ public abstract class Evaluator {
 
     for (Species s : species) {
       runningFitness += s.totalFitness;
-      if (targetFitness < runningFitness) {
+      if (targetFitness <= runningFitness) {
         return s;
       }
     }

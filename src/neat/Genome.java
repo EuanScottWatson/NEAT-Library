@@ -3,10 +3,12 @@ package neat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 public class Genome {
 
@@ -14,9 +16,6 @@ public class Genome {
   private Map<Integer, NodeGenome> nodes;
   // Connections mapped by the innovation number
   private Map<Integer, ConnectionGenome> connections;
-
-  // Global innovation to keep track of the connection numbers
-  private InnovationNumber connectionInnovation = new InnovationNumber();
 
   private static List<Integer> throwAwayList1 = new ArrayList<>();
   private static List<Integer> throwAwayList2 = new ArrayList<>();
@@ -61,17 +60,19 @@ public class Genome {
   public void mutation(Random r) {
     for (ConnectionGenome c : connections.values()) {
       if (r.nextFloat() < MUTATION_PROBABILITY) {
-        c.setWeight(c.getWeight() * (r.nextFloat() * 2f - 1f));   // Slight change
+        c.setWeight(c.getWeight() * (r.nextFloat() * 4f - 2f));   // Slight change
       } else {
-        c.setWeight(r.nextFloat() * 2f - 1f);                     // New value
+        c.setWeight(r.nextFloat() * 4f - 2f);                     // New value
       }
     }
   }
 
-  public void newConnectionMutation(Random r) {
-    NodeGenome node1 = nodes.get(r.nextInt(nodes.size()));
-    NodeGenome node2 = nodes.get(r.nextInt(nodes.size()));
-    float weight = r.nextFloat() * 2f - 1f;   // Scale it to allow a range of -1 to 1 inclusive
+  public void newConnectionMutation(Random r, InnovationNumber connectionInnovation) {
+    List<Integer> keys = new ArrayList<>(nodes.keySet());
+    NodeGenome node1 = nodes.get(keys.get(r.nextInt(nodes.size())));
+    NodeGenome node2 = nodes.get(keys.get(r.nextInt(nodes.size())));
+
+    float weight = r.nextFloat() * 4f - 2f;   // Scale it to allow a range of -1 to 1 inclusive
 
     if ((node1.getType() == NodeType.HIDDEN && node2.getType() == NodeType.INPUT) || (
         node1.getType() == NodeType.OUTPUT && node2.getType() == NodeType.HIDDEN) || (
@@ -102,14 +103,15 @@ public class Genome {
 
   }
 
-  public void newNodeMutation(Random r) {
-    ConnectionGenome c = connections.get(r.nextInt(connections.size()));
+  public void newNodeMutation(Random r, InnovationNumber connectionInnovation, InnovationNumber nodeInnovation) {
+    List<Integer> keys = new ArrayList<>(connections.keySet());
+    ConnectionGenome c = connections.get(keys.get(r.nextInt(connections.size())));
 
     c.disable();
 
     NodeGenome node1 = nodes.get(c.getInputNode());
     NodeGenome node2 = nodes.get(c.getOutputNode());
-    NodeGenome newNode = new NodeGenome(NodeType.HIDDEN, nodes.size());
+    NodeGenome newNode = new NodeGenome(NodeType.HIDDEN, nodeInnovation.getInnovationNo());
 
     ConnectionGenome connection1 = new ConnectionGenome(node1.getId(), newNode.getId(), 1f, true,
         connectionInnovation.getInnovationNo());
@@ -267,9 +269,10 @@ public class Genome {
     }
     for (ConnectionGenome c : g.getConnections().values()) {
       System.out.println("");
-      System.out.println("Innovation:" + c.getInnovationNo());
+      System.out.println("Innovation: " + c.getInnovationNo());
       System.out.println("Connection: " + c.getInputNode() + " -> " + c.getOutputNode());
       System.out.println("Enabled: " + c.isActive());
+      System.out.println("Weight: " + c.getWeight());
     }
   }
 
