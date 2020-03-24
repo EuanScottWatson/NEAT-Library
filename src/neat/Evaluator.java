@@ -54,10 +54,6 @@ public abstract class Evaluator {
     return speciesMap;
   }
 
-  public Map<Genome, Float> getFitnessMap() {
-    return fitnessMap;
-  }
-
   public float getHighestScore() {
     return highestScore;
   }
@@ -71,10 +67,6 @@ public abstract class Evaluator {
   }
 
   public void evaluate() {
-    //System.out.println(bestGenome);
-    //System.out.println();
-
-    //System.out.println("Evaluating...");
     for (Species s : species) {
       s.resetSpecies(random);
     }
@@ -82,7 +74,6 @@ public abstract class Evaluator {
     speciesMap.clear();
     nextGeneration = new ArrayList<>();
 
-    //System.out.println("\t\tSpeciating...");
     // Place genomes into respective species
     for (Genome g : population) {
       boolean foundSpecies = false;
@@ -106,7 +97,6 @@ public abstract class Evaluator {
 
     species.removeIf(s -> s.population.isEmpty());
 
-    //System.out.println("\t\tEvaluating Genomes...");
     // Evaluate the genomes in each species
     for (Genome g : population) {
       Species s = speciesMap.get(g);
@@ -120,25 +110,14 @@ public abstract class Evaluator {
       fitnessMap.put(g, fitness);
 
       if (fitness > highestScore) {
-        float totalWeight = 0f;
-        for (ConnectionGenome c : g.getConnections().values()) {
-          if (c.isActive()) {
-            totalWeight += Math.abs(c.getWeight());
-          }
-        }
-        //System.out.println("Sum of weights: " + totalWeight);
         highestScore = fitness;
         bestGenome = g;
-        //System.out.println(evaluateGenome(bestGenome));
       }
 
     }
 
     // Carry over the best two genomes in each species
-    //System.out.println("\t\tCarry over...");
     nextGeneration.add(bestGenome);
-    //System.out.println(bestGenome);
-    //System.out.println(evaluateGenome(bestGenome));
 
     for (Species s : species) {
       s.fitnessPairs.sort(comparator);
@@ -150,7 +129,6 @@ public abstract class Evaluator {
     }
 
     // Breed for the remaining places
-    //System.out.println("\t\tBreeding...");
     while (nextGeneration.size() < populationSize) {
       boolean found = false;
       Species s1 = getRandomSpecies();
@@ -204,14 +182,8 @@ public abstract class Evaluator {
       }
 
     }
-    //System.out.println("After breeding");
-    //System.out.println(bestGenome);
-    //System.out.println(evaluateGenome(bestGenome));
-
     // Reset for next generation
     population = nextGeneration;
-    //System.out.println(bestGenome);
-    //System.out.println(evaluateGenome(bestGenome));
   }
 
   private Genome getRandomGenome(Species s1) {
