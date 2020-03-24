@@ -1,6 +1,12 @@
-package neat;
+package test;
 
 import java.util.Random;
+import neat.ConnectionGenome;
+import neat.Evaluator;
+import neat.Genome;
+import neat.InnovationNumber;
+import neat.NodeGenome;
+import neat.NodeType;
 
 public class TestEvaluator {
 
@@ -40,7 +46,8 @@ public class TestEvaluator {
       System.out.print("Generation: " + (i + 1));
       System.out.print("\t\tNumber of Species: " + evaluator.getSpeciesSize());
       System.out.print("\t\tHighest Fitness: " + evaluator.getHighestScore());
-      System.out.print("\t\tNumber in best Species: " + evaluator.getSpeciesMap().get(evaluator.getBestGenome()).population.size());
+      System.out.print("\t\tNumber in best Species: " + evaluator.getSpeciesMap()
+          .get(evaluator.getBestGenome()).population.size());
 
       float totalWeight = 0f;
       for (ConnectionGenome c : evaluator.getBestGenome().getConnections().values()) {

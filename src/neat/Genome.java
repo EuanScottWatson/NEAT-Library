@@ -23,7 +23,7 @@ public class Genome {
     connections = new HashMap<>();
   }
 
-  public Genome(Genome starter) {
+  Genome(Genome starter) {
     nodes = new HashMap<>();
     connections = new HashMap<>();
 
@@ -52,7 +52,7 @@ public class Genome {
     return connections;
   }
 
-  public void mutation(Random r) {
+  void mutation(Random r) {
     for (ConnectionGenome c : connections.values()) {
       // Probability of mutating the weight of a connection
       float MUTATION_PROBABILITY = 0.9f;
@@ -64,7 +64,7 @@ public class Genome {
     }
   }
 
-  public void newConnectionMutation(Random r, InnovationNumber connectionInnovation) {
+  void newConnectionMutation(Random r, InnovationNumber connectionInnovation) {
     List<Integer> keys = new ArrayList<>(nodes.keySet());
     NodeGenome node1 = nodes.get(keys.get(r.nextInt(nodes.size())));
     NodeGenome node2 = nodes.get(keys.get(r.nextInt(nodes.size())));
@@ -100,7 +100,8 @@ public class Genome {
 
   }
 
-  public void newNodeMutation(Random r, InnovationNumber connectionInnovation, InnovationNumber nodeInnovation) {
+  void newNodeMutation(Random r, InnovationNumber connectionInnovation,
+      InnovationNumber nodeInnovation) {
     List<Integer> keys = new ArrayList<>(connections.keySet());
     ConnectionGenome c = connections.get(keys.get(r.nextInt(connections.size())));
 
@@ -120,7 +121,7 @@ public class Genome {
     connections.put(connection2.getInnovationNo(), connection2);
   }
 
-  public static Genome crossover(Genome parent1, Genome parent2, Random r) {
+  static Genome crossover(Genome parent1, Genome parent2, Random r) {
     // PRE: Parent1.fitness >= Parent2.fitness
     Genome child = new Genome();
 
@@ -148,7 +149,7 @@ public class Genome {
     return child;
   }
 
-  public static float compatibilityDistance(Genome genome1, Genome genome2, float c1, float c2,
+  static float compatibilityDistance(Genome genome1, Genome genome2, float c1, float c2,
       float c3) {
     int[] excessDisjoint = countExcessDisjoint(genome1, genome2);
     float avWeightDifference = getAverageWeightDifference(genome1, genome2);
@@ -270,45 +271,5 @@ public class Genome {
       System.out.println("Enabled: " + c.isActive());
       System.out.println("Weight: " + c.getWeight());
     }
-  }
-
-
-  public static void main(String[] args) {
-    Genome g1 = new Genome();
-
-    g1.addNode(new NodeGenome(NodeType.INPUT, 1));
-    g1.addNode(new NodeGenome(NodeType.INPUT, 2));
-    g1.addNode(new NodeGenome(NodeType.INPUT, 3));
-    g1.addNode(new NodeGenome(NodeType.OUTPUT, 4));
-    g1.addNode(new NodeGenome(NodeType.HIDDEN, 5));
-
-    g1.addConnections(new ConnectionGenome(1, 4, 1.0f, true, 1));
-    g1.addConnections(new ConnectionGenome(2, 4, 1.0f, false, 2));
-    g1.addConnections(new ConnectionGenome(3, 4, 1.0f, true, 3));
-    g1.addConnections(new ConnectionGenome(2, 5, 1.0f, true, 4));
-    g1.addConnections(new ConnectionGenome(5, 4, 1.0f, true, 5));
-    g1.addConnections(new ConnectionGenome(1, 5, 1.0f, true, 8));
-
-    Genome g2 = new Genome();
-
-    g1.addNode(new NodeGenome(NodeType.INPUT, 1));
-    g1.addNode(new NodeGenome(NodeType.INPUT, 2));
-    g1.addNode(new NodeGenome(NodeType.INPUT, 3));
-    g1.addNode(new NodeGenome(NodeType.OUTPUT, 4));
-    g1.addNode(new NodeGenome(NodeType.HIDDEN, 5));
-    g2.addNode(new NodeGenome(NodeType.HIDDEN, 6));
-
-    g2.addConnections(new ConnectionGenome(1, 4, 2.0f, true, 1));
-    g2.addConnections(new ConnectionGenome(2, 4, 1.0f, false, 2));
-    g2.addConnections(new ConnectionGenome(3, 4, 1.0f, true, 3));
-    g2.addConnections(new ConnectionGenome(2, 5, 1.0f, true, 4));
-    g2.addConnections(new ConnectionGenome(5, 4, 1.0f, false, 5));
-    g2.addConnections(new ConnectionGenome(5, 6, 1.0f, true, 6));
-    g2.addConnections(new ConnectionGenome(6, 4, 1.0f, true, 7));
-    g2.addConnections(new ConnectionGenome(3, 5, 1.0f, true, 9));
-    g2.addConnections(new ConnectionGenome(1, 6, 1.0f, true, 10));
-
-    System.out.println(Arrays.toString(countExcessDisjoint(g1, g2)));
-    System.out.println(getAverageWeightDifference(g1, g2));
   }
 }
