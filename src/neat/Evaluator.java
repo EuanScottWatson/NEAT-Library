@@ -35,7 +35,7 @@ public abstract class Evaluator {
     this.nodeInnovation = nodeInnovation;
     this.connectionInnovation = connectionInnovation;
     this.populationSize = populationSize;
-    configuration = new CONFIGURATION(populationSize);
+    configuration = new CONFIGURATION();
 
     population = new ArrayList<>();
     species = new ArrayList<>();
